@@ -15,27 +15,26 @@ from models.losses import GANLoss
 from datasets.cuhk_dataset import load_cuhk_dataset, CUHKFaceSketchDataset
 from visualize import save_sample_images
 
-def train_epoch(generator, discriminator, dataloader, g_optimizer, d_optimizer, 
-                gan_loss, l1_loss, device, lambda_l1=100):
-    """Train for one epoch."""
+def train_epoch(generator, discriminator, dataloader, g_optimizer, d_optimizer, gan_loss, l1_loss, device, lambda_l1=100):
+    #single epoch training
     generator.train()
     discriminator.train()
     
     total_g_loss = 0
     total_d_loss = 0
     
-    for i, (sketches, photos) in enumerate(tqdm(dataloader, desc="Training")):
+    for i, (sketches, photos) in enumerate(tqdm(dataloader, desc="Training")):#tqdm for loading
         sketches = sketches.to(device)
         photos = photos.to(device)
         
-        # Train Discriminator
+        #train discriminator
         d_optimizer.zero_grad()
         
-        # Real pairs
+        #real pairs
         real_pred = discriminator(sketches, photos)
         d_real_loss = gan_loss(real_pred, True)
         
-        # Fake pairs
+        #fake pairs
         fake_photos = generator(sketches)
         fake_pred = discriminator(sketches, fake_photos.detach())
         d_fake_loss = gan_loss(fake_pred, False)
@@ -44,7 +43,7 @@ def train_epoch(generator, discriminator, dataloader, g_optimizer, d_optimizer,
         d_loss.backward()
         d_optimizer.step()
         
-        # Train Generator
+        #train Generator
         g_optimizer.zero_grad()
         
         fake_pred = discriminator(sketches, fake_photos)
@@ -119,15 +118,15 @@ def main():
     gan_loss = GANLoss().to(device)
     l1_loss = nn.L1Loss()
     
-    # Optimizers
+    #defining optimizers
     g_optimizer = optim.Adam(generator.parameters(), lr=args.lr, betas=(0.5, 0.999))
     d_optimizer = optim.Adam(discriminator.parameters(), lr=args.lr, betas=(0.5, 0.999))
     
-    # Learning rate schedulers
+    #LR scheduler, for 100 epochs LR is 1 and then it starts reducing
     g_scheduler = optim.lr_scheduler.LambdaLR(g_optimizer, lr_lambda=lambda epoch: 1.0 - max(0, epoch - 100) / 100)
     d_scheduler = optim.lr_scheduler.LambdaLR(d_optimizer, lr_lambda=lambda epoch: 1.0 - max(0, epoch - 100) / 100)
     
-    # Training history
+    #storing losses
     history = {
         'g_loss': [],
         'd_loss': [],
@@ -137,32 +136,28 @@ def main():
     print(f"Starting training for {args.epochs} epochs...")
     
     for epoch in range(args.epochs):
-        # Training
-        g_loss, d_loss = train_epoch(
-            generator, discriminator, train_loader,
-            g_optimizer, d_optimizer, gan_loss, l1_loss,
-            device, args.lambda_l1
-        )
+        #training
+        g_loss, d_loss = train_epoch(generator, discriminator, train_loader,g_optimizer, d_optimizer, gan_loss, l1_loss,device, args.lambda_l1)
         
-        # Validation
+        #validation
         val_l1_loss = validate(generator, val_loader, l1_loss, device)
         
-        # Update learning rates
+        #update learning rates
         g_scheduler.step()
         d_scheduler.step()
         
-        # Save history
+        #save history
         history['g_loss'].append(g_loss)
         history['d_loss'].append(d_loss)
         history['val_l1_loss'].append(val_l1_loss)
         
         print(f"Epoch [{epoch+1}/{args.epochs}] - G Loss: {g_loss:.4f}, D Loss: {d_loss:.4f}, Val L1: {val_l1_loss:.4f}")
         
-        # Save sample images
+        #save sample images
         if (epoch + 1) % args.save_freq == 0:
             save_sample_images(generator, val_loader, device, epoch + 1, output_dir / 'samples')
         
-        # Save checkpoints
+        #save checkpoints
         if (epoch + 1) % 50 == 0 or epoch == args.epochs - 1:
             torch.save({
                 'epoch': epoch,
