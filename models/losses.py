@@ -4,10 +4,13 @@ import torch.nn.functional as F
 from torchvision.models import vgg19
 
 class GANLoss(nn.Module):
-    """GAN loss for adversarial training.
+    """GAN loss for gen vs dis
     
-    Supports both LSGAN (least squares) and vanilla GAN losses.
-    LSGAN typically provides more stable training.
+    both least squares and vanilla gan losses
+    
+    LSGAN more stable
+    
+    i guess have to see which one is better for us and keep that next time we go through this
     """
     
     def __init__(self, use_lsgan=True, target_real_label=1.0, target_fake_label=0.0):
@@ -23,7 +26,7 @@ class GANLoss(nn.Module):
         self.use_lsgan = use_lsgan
 
     def get_target_tensor(self, prediction, target_is_real):
-        """Create target tensor filled with real/fake labels."""
+        """target tensor filled with labels"""
         if target_is_real:
             target_tensor = self.real_label
         else:
@@ -34,8 +37,8 @@ class GANLoss(nn.Module):
         """Calculate GAN loss.
         
         Args:
-            prediction: Discriminator predictions
-            target_is_real: Whether the target should be real (True) or fake (False)
+            prediction: discriminator predictions
+            target_is_real: ground truth
             
         Returns:
             GAN loss value
@@ -47,19 +50,19 @@ class GANLoss(nn.Module):
 class PerceptualLoss(nn.Module):
     """Perceptual loss using VGG19 features.
     
-    Compares high-level features from a pre-trained VGG network
+    compares high level features from pretrained VGG network
     to encourage perceptually similar outputs.
     """
     
     def __init__(self, layers=['relu_1_1', 'relu_2_1', 'relu_3_1', 'relu_4_1', 'relu_5_1']):
         super(PerceptualLoss, self).__init__()
         
-        # Load pre-trained VGG19
+        # load pretrained VGG19
         vgg = vgg19(pretrained=True).features
         self.layers = layers
         self.features = nn.ModuleDict()
         
-        # Extract specified layers
+        # extract specified layers
         layer_names = {
             '0': 'relu_1_1', '5': 'relu_2_1', '10': 'relu_3_1',
             '19': 'relu_4_1', '28': 'relu_5_1'
@@ -71,23 +74,23 @@ class PerceptualLoss(nn.Module):
             if layer_names.get(name) == layers[-1]:
                 break
         
-        # Freeze VGG parameters
+        # freeze VGG parameters
         for param in self.features.parameters():
             param.requires_grad = False
         
         self.criterion = nn.L1Loss()
 
     def forward(self, input, target):
-        """Calculate perceptual loss.
+        """calculate perceptual loss.
         
         Args:
-            input: Generated image [B, 1, H, W]
-            target: Target image [B, 1, H, W]
+            input: generated image [B, 1, H, W]
+            target: target image [B, 1, H, W]
             
         Returns:
-            Perceptual loss value
+            perceptual loss value
         """
-        # Convert grayscale to RGB for VGG
+        # convert grayscale to RGB for VGG
         if input.size(1) == 1:
             input = input.repeat(1, 3, 1, 1)
             target = target.repeat(1, 3, 1, 1)
@@ -106,10 +109,9 @@ class PerceptualLoss(nn.Module):
         return loss
 
 class StyleLoss(nn.Module):
-    """Style loss using Gram matrices.
+    """style loss using gram matrices.
     
-    Captures texture and style information by comparing
-    correlations between feature maps.
+    captiures texture and style by feature map comparison
     """
     
     def __init__(self):
@@ -117,31 +119,30 @@ class StyleLoss(nn.Module):
         self.criterion = nn.L1Loss()
 
     def gram_matrix(self, features):
-        """Calculate Gram matrix for style representation."""
+        """gram matrix for style representation."""
         batch_size, channels, height, width = features.size()
         features = features.view(batch_size, channels, height * width)
         gram = torch.bmm(features, features.transpose(1, 2))
         return gram / (channels * height * width)
 
     def forward(self, input, target):
-        """Calculate style loss.
+        """calculate style loss.
         
         Args:
-            input: Generated image features
-            target: Target image features
+            input: generated image features
+            target: target image features
             
         Returns:
-            Style loss value
+            style loss value
         """
         input_gram = self.gram_matrix(input)
         target_gram = self.gram_matrix(target)
         return self.criterion(input_gram, target_gram)
 
 class CombinedLoss(nn.Module):
-    """Combined loss function for Pix2Pix training.
+    """pix2pix combined loss funtion
     
-    Combines adversarial, L1, and optional perceptual losses
-    with configurable weights.
+    gan + L1 + perceptual (have to see if perceptual actually used)
     """
     
     def __init__(self, lambda_l1=100, lambda_perceptual=0.1, use_perceptual=False):
@@ -159,29 +160,29 @@ class CombinedLoss(nn.Module):
             self.perceptual_loss = PerceptualLoss()
 
     def forward(self, fake_pred, fake_image, real_image, target_is_real=True):
-        """Calculate combined loss.
+        """calculate combined loss.
         
         Args:
-            fake_pred: Discriminator prediction on fake image
-            fake_image: Generated image
-            real_image: Target real image
-            target_is_real: Whether target should be real for GAN loss
+            fake_pred: discriminator prediction on fake image
+            fake_image: generated image
+            real_image: target real image
+            target_is_real: ground truth
             
         Returns:
-            Dictionary containing individual and total losses
+            dict with individual and total losses
         """
         losses = {}
         
-        # Adversarial loss
+        # gan
         losses['gan'] = self.gan_loss(fake_pred, target_is_real)
         
-        # L1 reconstruction loss
+        # L1 
         losses['l1'] = self.l1_loss(fake_image, real_image)
         
-        # Total loss
+        # total loss
         total_loss = losses['gan'] + self.lambda_l1 * losses['l1']
         
-        # Optional perceptual loss
+        # optional perceptual loss
         if self.use_perceptual:
             losses['perceptual'] = self.perceptual_loss(fake_image, real_image)
             total_loss += self.lambda_perceptual * losses['perceptual']
@@ -191,10 +192,9 @@ class CombinedLoss(nn.Module):
         return losses
 
 class FeatureMatchingLoss(nn.Module):
-    """Feature matching loss for improved training stability.
+    """feature matching loss, stable++
     
-    Matches intermediate features from the discriminator
-    instead of just the final output.
+    intermediate features lso matched along with final output
     """
     
     def __init__(self, num_layers=3):
@@ -203,14 +203,14 @@ class FeatureMatchingLoss(nn.Module):
         self.criterion = nn.L1Loss()
 
     def forward(self, real_features, fake_features):
-        """Calculate feature matching loss.
+        """calculate feature matching loss.
         
         Args:
-            real_features: List of discriminator features for real images
-            fake_features: List of discriminator features for fake images
+            real_features: list of discriminator features for real images
+            fake_features: list of discriminator features for fake images
             
         Returns:
-            Feature matching loss value
+            feature matching loss value
         """
         loss = 0
         for i in range(min(len(real_features), self.num_layers)):
