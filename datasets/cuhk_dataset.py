@@ -181,29 +181,29 @@ def load_cuhk_dataset(data_root, size=256):
 #     print(f"  Sketches: {sketch_path}")
 #     print(f"  Photos: {photo_path}")
 
-def load_preprocessed_data(data_dir='./preprocessed_data'):
-    """Load previously saved preprocessed data.
+# def load_preprocessed_data(data_dir='./preprocessed_data'):
+#     """Load previously saved preprocessed data.
     
-    Args:
-        data_dir: Directory containing saved arrays
+#     Args:
+#         data_dir: Directory containing saved arrays
         
-    Returns:
-        Tuple of (sketches, photos) as numpy arrays
-    """
-    sketch_path = os.path.join(data_dir, 'sketch_images.npy')
-    photo_path = os.path.join(data_dir, 'real_images.npy')
+#     Returns:
+#         Tuple of (sketches, photos) as numpy arrays
+#     """
+#     sketch_path = os.path.join(data_dir, 'sketch_images.npy')
+#     photo_path = os.path.join(data_dir, 'real_images.npy')
     
-    if not (os.path.exists(sketch_path) and os.path.exists(photo_path)):
-        raise FileNotFoundError(f"Preprocessed data not found in {data_dir}")
+#     if not (os.path.exists(sketch_path) and os.path.exists(photo_path)):
+#         raise FileNotFoundError(f"Preprocessed data not found in {data_dir}")
     
-    sketches = np.load(sketch_path)
-    photos = np.load(photo_path)
+#     sketches = np.load(sketch_path)
+#     photos = np.load(photo_path)
     
-    print(f"Loaded preprocessed data:")
-    print(f"  Sketches: {sketches.shape}")
-    print(f"  Photos: {photos.shape}")
+#     print(f"Loaded preprocessed data:")
+#     print(f"  Sketches: {sketches.shape}")
+#     print(f"  Photos: {photos.shape}")
     
-    return sketches, photos
+#     return sketches, photos
 
 class CUHKFaceSketchDataset(Dataset):    
     def __init__(self, sketches, photos, mode='train', train_ratio=0.8, val_ratio=0.1):
