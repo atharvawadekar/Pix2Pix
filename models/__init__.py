@@ -7,15 +7,11 @@ needed for training the Pix2Pix model.
 
 from .generator import Generator, UNetBlock
 from .discriminator import Discriminator
-from .losses import GANLoss, PerceptualLoss, StyleLoss, CombinedLoss, FeatureMatchingLoss
+from .losses import GANLoss
 
 __all__ = [
     'Generator',
     'UNetBlock', 
     'Discriminator',
-    'GANLoss',
-    'PerceptualLoss',
-    'StyleLoss',
-    'CombinedLoss',
-    'FeatureMatchingLoss'
+    'GANLoss'
 ]

@@ -47,6 +47,7 @@ class GANLoss(nn.Module):
         loss = self.loss(prediction, target_tensor)
         return loss
 
+'''
 class PerceptualLoss(nn.Module):
     """Perceptual loss using VGG19 features.
     
@@ -217,3 +218,4 @@ class FeatureMatchingLoss(nn.Module):
             loss += self.criterion(fake_features[i], real_features[i].detach())
         
         return loss / min(len(real_features), self.num_layers)
+'''
