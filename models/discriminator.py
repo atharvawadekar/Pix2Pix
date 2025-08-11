@@ -56,6 +56,7 @@ class Discriminator(nn.Module):
         
         return output
 
+'''
 class MultiScaleDiscriminator(nn.Module):
     """multiscale discriminator for stability
     different scale discriminators to capture global and local details
@@ -98,3 +99,5 @@ class MultiScaleDiscriminator(nn.Module):
                 input_B = self.downsample(input_B)
         
         return results
+
+        '''

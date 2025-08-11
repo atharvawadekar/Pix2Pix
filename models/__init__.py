@@ -6,14 +6,13 @@ needed for training the Pix2Pix model.
 """
 
 from .generator import Generator, UNetBlock
-from .discriminator import Discriminator, MultiScaleDiscriminator
+from .discriminator import Discriminator
 from .losses import GANLoss, PerceptualLoss, StyleLoss, CombinedLoss, FeatureMatchingLoss
 
 __all__ = [
     'Generator',
     'UNetBlock', 
     'Discriminator',
-    'MultiScaleDiscriminator',
     'GANLoss',
     'PerceptualLoss',
     'StyleLoss',
