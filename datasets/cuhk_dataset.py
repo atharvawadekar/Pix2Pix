@@ -78,28 +78,6 @@ def load_cuhk_dataset(data_root, size=256):
     #fhinding matching pairs of images and sketches
     valid_pairs = []
     
-    #create a key for every image path - this doesnt work due to weird naming
-    # image_dict = {}
-    # for img_file in image_files:
-    #     #The base name is in images and sketches
-    #     base_name = os.path.splitext(img_file)[0]
-    #     base_name = base_name.replace('_photo', '').replace('-photo', '').replace('_real', '')
-    #     image_dict[base_name] = img_file
-    
-    # sketch_dict = {}
-    # for sketch_file in sketch_files:
-    #     base_name = os.path.splitext(sketch_file)[0]
-    #     base_name = base_name.replace('_sketch', '').replace('-sketch', '').replace('_drawing', '')
-    #     sketch_dict[base_name] = sketch_file
-    
-    # # Find matching pairs
-    # for base_name in image_dict:
-    #     if base_name in sketch_dict:
-    #         valid_pairs.append((image_dict[base_name], sketch_dict[base_name]))
-    
-    # print(f"Found {len(valid_pairs)} valid sketch-photo pairs")
-    
-
     #need to think here- works with a bit of luck
     print("No name-based matches found, trying positional pairing...")
     min_count = min(len(image_files), len(sketch_files))
@@ -167,49 +145,11 @@ def load_cuhk_dataset(data_root, size=256):
     #return sketch and images both grayscale and normalized
     return np.array(sketch_array), np.array(img_array_gray)
 
-
-# def save_preprocessed_data(sketches, photos, output_dir='./preprocessed_data'):
-#     os.makedirs(output_dir, exist_ok=True)
-    
-#     sketch_path = os.path.join(output_dir, 'sketch_images.npy')
-#     photo_path = os.path.join(output_dir, 'real_images.npy')
-    
-#     np.save(sketch_path, sketches)
-#     np.save(photo_path, photos)
-    
-#     print(f"Preprocessed data saved to:")
-#     print(f"  Sketches: {sketch_path}")
-#     print(f"  Photos: {photo_path}")
-
-# def load_preprocessed_data(data_dir='./preprocessed_data'):
-#     """Load previously saved preprocessed data.
-    
-#     Args:
-#         data_dir: Directory containing saved arrays
-        
-#     Returns:
-#         Tuple of (sketches, photos) as numpy arrays
-#     """
-#     sketch_path = os.path.join(data_dir, 'sketch_images.npy')
-#     photo_path = os.path.join(data_dir, 'real_images.npy')
-    
-#     if not (os.path.exists(sketch_path) and os.path.exists(photo_path)):
-#         raise FileNotFoundError(f"Preprocessed data not found in {data_dir}")
-    
-#     sketches = np.load(sketch_path)
-#     photos = np.load(photo_path)
-    
-#     print(f"Loaded preprocessed data:")
-#     print(f"  Sketches: {sketches.shape}")
-#     print(f"  Photos: {photos.shape}")
-    
-#     return sketches, photos
-
 class CUHKFaceSketchDataset(Dataset):    
     def __init__(self, sketches, photos, mode='train', train_ratio=0.8, val_ratio=0.1):
         self.mode = mode
         
-        # Calculate split indices
+        #calculate split indices
         total_pairs = len(sketches)
         #get train split
         train_split = int(train_ratio * total_pairs)
