@@ -168,18 +168,18 @@ def load_cuhk_dataset(data_root, size=256):
     return np.array(sketch_array), np.array(img_array_gray)
 
 
-def save_preprocessed_data(sketches, photos, output_dir='./preprocessed_data'):
-    os.makedirs(output_dir, exist_ok=True)
+# def save_preprocessed_data(sketches, photos, output_dir='./preprocessed_data'):
+#     os.makedirs(output_dir, exist_ok=True)
     
-    sketch_path = os.path.join(output_dir, 'sketch_images.npy')
-    photo_path = os.path.join(output_dir, 'real_images.npy')
+#     sketch_path = os.path.join(output_dir, 'sketch_images.npy')
+#     photo_path = os.path.join(output_dir, 'real_images.npy')
     
-    np.save(sketch_path, sketches)
-    np.save(photo_path, photos)
+#     np.save(sketch_path, sketches)
+#     np.save(photo_path, photos)
     
-    print(f"Preprocessed data saved to:")
-    print(f"  Sketches: {sketch_path}")
-    print(f"  Photos: {photo_path}")
+#     print(f"Preprocessed data saved to:")
+#     print(f"  Sketches: {sketch_path}")
+#     print(f"  Photos: {photo_path}")
 
 def load_preprocessed_data(data_dir='./preprocessed_data'):
     """Load previously saved preprocessed data.
