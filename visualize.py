@@ -137,7 +137,7 @@ def save_training_progress(generator, val_loader, device, output_dir, epoch):
             vutils.save_image(sketch_img, individual_dir / f"sample_{i:02d}_sketch.png")
             vutils.save_image(gen_img, individual_dir / f"sample_{i:02d}_generated.png")
             vutils.save_image(real_img, individual_dir / f"sample_{i:02d}_real.png")
-
+'''
 def plot_training_curves(history, output_path):
     """plot and save training curves.
     
@@ -196,7 +196,7 @@ def plot_training_curves(history, output_path):
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-
+'''
 def visualize_feature_maps(generator, input_tensor, layer_name='down4', output_dir='./feature_maps'):
     """visualize intermediate feature maps from the generator.
     
