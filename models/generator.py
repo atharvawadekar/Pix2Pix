@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class UNetBlock(nn.Module):
-    # single layer in the generator
+    #single layer in the generator
     def __init__(self, in_channels, out_channels, down=True, use_dropout=False):
         super(UNetBlock, self).__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, 4, 2, 1, bias=False)
