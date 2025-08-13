@@ -19,7 +19,7 @@ class Discriminator(nn.Module):
             return layers
 
         # build discriminator architecture
-        # 256x256 to 30x30
+        # 256x256 to 15x15
         self.model = nn.Sequential(
             # 256 to 128, without batch norm
             *discriminator_block(in_channels, 64, normalization=False),
@@ -52,6 +52,6 @@ class Discriminator(nn.Module):
         img_input = torch.cat((img_A, img_B), 1)  # [B, 2, 256, 256]
         
         # pass through discriminator network
-        output = self.model(img_input)  # [B, 1, 30, 30]
+        output = self.model(img_input)  # [B, 1, 15, 15]
         
         return output
