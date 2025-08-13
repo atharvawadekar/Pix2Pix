@@ -210,12 +210,55 @@ def main():
     # plt.tight_layout()
     # plt.savefig(output_dir / 'training_curves.png', dpi=300, bbox_inches='tight')
     # plt.show()
-    
-    # Plot training curves
-    plt.figure(figsize=(15, 5))
 
-    # 1. Generator Loss
-    plt.subplot(1, 3, 1)
+    # # Plot training curves
+    # plt.figure(figsize=(15, 5))
+
+    # # 1. Generator Loss
+    # plt.subplot(1, 3, 1)
+    # plt.plot(history['g_loss'], label='Generator Loss', color='blue')
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Loss')
+    # plt.title('Generator Loss')
+    # plt.legend()
+    # plt.grid(True)
+
+    # plt.subplot(1, 3, 2)
+    # plt.plot(history['val_l1_loss'], label='Validation L1 Loss', color='red')
+    # plt.xlabel('Epoch')
+    # plt.ylabel('L1 Loss')
+    # plt.title('Validation L1 Loss')
+    # plt.legend()
+    # plt.grid(True)
+
+    # # 2. Discriminator Loss
+    # plt.subplot(1, 3, 3)
+    # plt.plot(history['d_loss'], label='Discriminator Loss', color='green')
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Loss')
+    # plt.title('Discriminator Loss')
+    # plt.legend()
+    # plt.grid(True)
+
+    # # 3. Both Losses Together
+    # plt.subplot(1, 3, 4)
+    # plt.plot(history['g_loss'], label='Generator Loss', color='blue', alpha=0.7)
+    # plt.plot(history['d_loss'], label='Discriminator Loss', color='green', alpha=0.7)
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Loss')
+    # plt.title('Generator vs Discriminator Loss')
+    # plt.legend()
+    # plt.grid(True)
+
+    # plt.tight_layout()
+    # plt.savefig(output_dir / 'training_curves.png', dpi=300, bbox_inches='tight')
+    # plt.show()
+
+
+    plt.figure(figsize=(12, 8))
+
+    # 1
+    plt.subplot(2, 2, 1)
     plt.plot(history['g_loss'], label='Generator Loss', color='blue')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
@@ -223,8 +266,17 @@ def main():
     plt.legend()
     plt.grid(True)
 
-    # 2. Discriminator Loss
-    plt.subplot(1, 3, 2)
+    # 2
+    plt.subplot(2, 2, 2)
+    plt.plot(history['val_l1_loss'], label='Validation L1 Loss', color='red')
+    plt.xlabel('Epoch')
+    plt.ylabel('L1 Loss')
+    plt.title('Validation L1 Loss')
+    plt.legend()
+    plt.grid(True)
+
+    # 3
+    plt.subplot(2, 2, 3)
     plt.plot(history['d_loss'], label='Discriminator Loss', color='green')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
@@ -232,8 +284,8 @@ def main():
     plt.legend()
     plt.grid(True)
 
-    # 3. Both Losses Together
-    plt.subplot(1, 3, 3)
+    # 4
+    plt.subplot(2, 2, 4)
     plt.plot(history['g_loss'], label='Generator Loss', color='blue', alpha=0.7)
     plt.plot(history['d_loss'], label='Discriminator Loss', color='green', alpha=0.7)
     plt.xlabel('Epoch')
