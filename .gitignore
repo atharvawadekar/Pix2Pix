@@ -6,3 +6,4 @@ data/sketch_points
 numbered_test/
 outputs/
 models/generator.py_bak
+train.py_bak
