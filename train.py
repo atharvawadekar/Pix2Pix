@@ -32,16 +32,12 @@ def train_epoch(generator, discriminator, dataloader, g_optimizer, d_optimizer, 
         
         #real pairs
         real_pred = discriminator(sketches, photos)
-        print("Real Pred",real_pred)
         d_real_loss = gan_loss(real_pred, True)
-        print("D Real Loss",d_real_loss)
         
         #fake pairs
         fake_photos = generator(sketches)
         fake_pred = discriminator(sketches, fake_photos.detach())
-        print("Fake Pred",fake_pred)
         d_fake_loss = gan_loss(fake_pred, False)
-        print("D Fake Loss",d_fake_loss)
         
         d_loss = (d_real_loss + d_fake_loss) * 0.5
         d_loss.backward()
