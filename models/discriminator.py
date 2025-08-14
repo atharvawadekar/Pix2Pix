@@ -4,7 +4,7 @@ import torch.nn as nn
 class Discriminator(nn.Module):
     """PatchGAN discriminator
     
-    each 70x70 patch labeled as either real or fake. Detailed images created by generator.
+    each 94x94 patch labeled as either real or fake. Detailed images created by generator.
     """
     
     def __init__(self, in_channels=2):  # sketch & photo channels
@@ -19,7 +19,7 @@ class Discriminator(nn.Module):
             return layers
 
         # build discriminator architecture
-        # 256x256 to 30x30
+        # 256x256 to 15x15
         self.model = nn.Sequential(
             # 256 to 128, without batch norm
             *discriminator_block(in_channels, 64, normalization=False),
@@ -52,52 +52,6 @@ class Discriminator(nn.Module):
         img_input = torch.cat((img_A, img_B), 1)  # [B, 2, 256, 256]
         
         # pass through discriminator network
-        output = self.model(img_input)  # [B, 1, 30, 30]
+        output = self.model(img_input)  # [B, 1, 15, 15]
         
         return output
-
-'''
-class MultiScaleDiscriminator(nn.Module):
-    """multiscale discriminator for stability
-    different scale discriminators to capture global and local details
-    """
-    
-    def __init__(self, in_channels=2, num_discriminators=2):
-        super(MultiScaleDiscriminator, self).__init__()
-        
-        self.num_discriminators = num_discriminators
-        
-        self.discriminators = nn.ModuleList()
-        for i in range(num_discriminators):
-            self.discriminators.append(Discriminator(in_channels))
-        
-        # downsampling
-        self.downsample = nn.AvgPool2d(3, stride=2, padding=1, count_include_pad=False)
-
-    def forward(self, img_A, img_B):
-        """forward pass through multi-scale discriminator.
-        
-        Args:
-            img_A: input sketch tensor [B, 1, 256, 256]
-            img_B: target photo tensor [B, 1, 256, 256]
-            
-        Returns:
-            list of patch prediction tensors at different scales
-        """
-        results = []
-        
-        input_A, input_B = img_A, img_B
-        
-        for i in range(self.num_discriminators):
-            # discriminator at this scale
-            output = self.discriminators[i](input_A, input_B)
-            results.append(output)
-            
-            # downsample for next scale 
-            if i < self.num_discriminators - 1:
-                input_A = self.downsample(input_A)
-                input_B = self.downsample(input_B)
-        
-        return results
-
-        '''
