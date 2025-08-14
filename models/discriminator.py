@@ -4,7 +4,7 @@ import torch.nn as nn
 class Discriminator(nn.Module):
     """PatchGAN discriminator
     
-    each 70x70 patch labeled as either real or fake. Detailed images created by generator.
+    each 94x94 patch labeled as either real or fake. Detailed images created by generator.
     """
     
     def __init__(self, in_channels=2):  # sketch & photo channels

@@ -8,7 +8,6 @@ from tqdm import tqdm
 
 def calculate_psnr(img1, img2, max_val=1.0):
     """
-    Calculate PSNR between two images
     
     Args:
         img1, img2: torch tensors or numpy arrays with values in [0, max_val]
@@ -21,8 +20,7 @@ def calculate_psnr(img1, img2, max_val=1.0):
         img1 = img1.cpu().numpy()
     if torch.is_tensor(img2):
         img2 = img2.cpu().numpy()
-    
-    # Ensure images are in range [0, max_val]
+
     img1 = np.clip(img1, 0, max_val)
     img2 = np.clip(img2, 0, max_val)
     
@@ -43,37 +41,36 @@ def calculate_ssim(img1, img2, max_val=1.0):
         img1 = img1.cpu().numpy()
     if torch.is_tensor(img2):
         img2 = img2.cpu().numpy()
-    
-    # Ensure images are in range [0, max_val]
+
     img1 = np.clip(img1, 0, max_val)
     img2 = np.clip(img2, 0, max_val)
     
-    # Handle different input shapes
-    if len(img1.shape) == 4:  # Batch of images (B, C, H, W)
+
+    if len(img1.shape) == 4:  
         ssim_values = []
         for i in range(img1.shape[0]):
-            if img1.shape[1] == 3:  # RGB
-                # Convert from (C, H, W) to (H, W, C)
+            if img1.shape[1] == 3: 
+
                 img1_single = np.transpose(img1[i], (1, 2, 0))
                 img2_single = np.transpose(img2[i], (1, 2, 0))
                 ssim_val = ssim(img1_single, img2_single, data_range=max_val, multichannel=True, channel_axis=2)
-            else:  # Grayscale
+            else:
                 ssim_val = ssim(img1[i, 0], img2[i, 0], data_range=max_val)
             ssim_values.append(ssim_val)
         return np.mean(ssim_values)
-    elif len(img1.shape) == 3:  # Single image (C, H, W)
-        if img1.shape[0] == 3:  # RGB
+    elif len(img1.shape) == 3:  
+        if img1.shape[0] == 3: 
             img1 = np.transpose(img1, (1, 2, 0))
             img2 = np.transpose(img2, (1, 2, 0))
             return ssim(img1, img2, data_range=max_val, multichannel=True, channel_axis=2)
-        else:  # Grayscale
+        else:
             return ssim(img1[0], img2[0], data_range=max_val)
-    else:  # 2D image
+    else: 
         return ssim(img1, img2, data_range=max_val)
 
 def evaluate_model_metrics(generator, dataloader, device, max_val=1.0):
     """
-    Evaluate model using SSIM and PSNR metrics
+    eval models using PSNR and SSIM metrics
     
     Args:
         generator: trained generator model
@@ -93,15 +90,12 @@ def evaluate_model_metrics(generator, dataloader, device, max_val=1.0):
         for sketches, photos in tqdm(dataloader, desc="Evaluating metrics"):
             sketches = sketches.to(device)
             photos = photos.to(device)
-            
-            # Generate fake photos
+
             fake_photos = generator(sketches)
-            
-            # Convert to numpy and calculate metrics
+           
             fake_np = fake_photos.cpu().numpy()
             real_np = photos.cpu().numpy()
-            
-            # Calculate PSNR for each image in batch
+
             for i in range(fake_np.shape[0]):
                 psnr_val = calculate_psnr(fake_np[i], real_np[i], max_val)
                 psnr_values.append(psnr_val)
@@ -118,7 +112,7 @@ def evaluate_model_metrics(generator, dataloader, device, max_val=1.0):
 
 def plot_evaluation_results(metrics, output_dir):
     """
-    Create plots showing SSIM and PSNR results
+    psnr and ssim plots
     
     Args:
         metrics: dict with 'psnr', 'ssim', 'psnr_std', 'ssim_std'
@@ -126,19 +120,16 @@ def plot_evaluation_results(metrics, output_dir):
     """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
     
-    # PSNR plot
     ax1.bar(['PSNR'], [metrics['psnr']], yerr=[metrics['psnr_std']], 
             capsize=10, color='skyblue', edgecolor='navy', linewidth=2)
     ax1.set_ylabel('PSNR (dB)')
     ax1.set_title(f'Peak Signal-to-Noise Ratio\n{metrics["psnr"]:.2f} ± {metrics["psnr_std"]:.2f} dB')
     ax1.grid(True, alpha=0.3)
     ax1.set_ylim(0, max(30, metrics['psnr'] + metrics['psnr_std'] + 5))
-    
-    # Add value text on bar
+ 
     ax1.text(0, metrics['psnr'] + metrics['psnr_std'] + 1, 
              f'{metrics["psnr"]:.2f}', ha='center', va='bottom', fontweight='bold')
     
-    # SSIM plot
     ax2.bar(['SSIM'], [metrics['ssim']], yerr=[metrics['ssim_std']], 
             capsize=10, color='lightcoral', edgecolor='darkred', linewidth=2)
     ax2.set_ylabel('SSIM')
@@ -146,7 +137,6 @@ def plot_evaluation_results(metrics, output_dir):
     ax2.grid(True, alpha=0.3)
     ax2.set_ylim(0, 1)
     
-    # Add value text on bar
     ax2.text(0, metrics['ssim'] + metrics['ssim_std'] + 0.05, 
              f'{metrics["ssim"]:.4f}', ha='center', va='bottom', fontweight='bold')
     
@@ -163,7 +153,7 @@ def plot_evaluation_results(metrics, output_dir):
 
 def compare_sample_images_with_metrics(generator, dataloader, device, output_dir, num_samples=5):
     """
-    Generate sample images and calculate metrics for each
+    sample images with metrics
     
     Args:
         generator: trained generator model
@@ -188,21 +178,19 @@ def compare_sample_images_with_metrics(generator, dataloader, device, output_dir
             
             fake_photos = generator(sketches)
             
-            # Take first image from batch
+          
             sketch = sketches[0].cpu()
             real = photos[0].cpu() 
             fake = fake_photos[0].cpu()
             
-            # Calculate metrics for this sample
             psnr_val = calculate_psnr(fake.numpy(), real.numpy())
             ssim_val = calculate_ssim(fake.numpy(), real.numpy())
             
-            # Convert tensors to displayable format
-            sketch_np = (sketch.permute(1, 2, 0) + 1) / 2  # Denormalize from [-1,1] to [0,1]
+            sketch_np = (sketch.permute(1, 2, 0) + 1) / 2 
             real_np = (real.permute(1, 2, 0) + 1) / 2
             fake_np = (fake.permute(1, 2, 0) + 1) / 2
             
-            # Plot images
+           
             axes[batch_idx, 0].imshow(sketch_np)
             axes[batch_idx, 0].set_title(f'Input Sketch')
             axes[batch_idx, 0].axis('off')

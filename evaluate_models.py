@@ -19,30 +19,24 @@ def main():
     
     args = parser.parse_args()
     
-    # Create output directory
     output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True)
     
-    # Device
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
     
-    # Load dataset
     print("Loading CUHK dataset...")
     sketches, photos = load_cuhk_dataset(args.data_root, size=args.img_size)
     val_dataset = CUHKFaceSketchDataset(sketches, photos, mode='val')
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=4)
-    
-    # Load model
+
     print(f"Loading model from {args.model_path}...")
     generator = Generator().to(device)
-    
-    # Load state dict
+
     if args.model_path.endswith('.pth'):
-        # If it's a direct state dict
         generator.load_state_dict(torch.load(args.model_path, map_location=device))
     else:
-        # If it's a checkpoint with multiple components
         checkpoint = torch.load(args.model_path, map_location=device)
         if 'generator_state_dict' in checkpoint:
             generator.load_state_dict(checkpoint['generator_state_dict'])
@@ -51,18 +45,16 @@ def main():
     
     generator.eval()
     print("Model loaded successfully!")
-    
-    # Evaluate metrics
+  
     print("\nEvaluating model with SSIM and PSNR metrics...")
     metrics = evaluate_model_metrics(generator, val_loader, device, max_val=1.0)
-    
-    # Create plots
+
     plot_evaluation_results(metrics, output_dir)
     
-    # Create sample comparisons
+
     compare_sample_images_with_metrics(generator, val_loader, device, output_dir, num_samples=args.num_samples)
     
-    # Save detailed results
+ 
     import json
     with open(output_dir / 'evaluation_results.json', 'w') as f:
         json.dump({

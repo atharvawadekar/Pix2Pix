@@ -6,25 +6,17 @@ channels:
 dependencies:
   # Python
   - python=3.9
-  
-  # PyTorch (Windows-compatible versions)
   - pytorch=2.0.1
   - torchvision=0.15.2
   - torchaudio=2.0.2
-  - cpuonly  # Safe fallback - will replace with CUDA if needed
-  
-  # Core packages
+  - cpuonly 
   - numpy=1.24.3
   - pillow=10.0.0
   - matplotlib=3.7.2
   - tqdm=4.65.0
   - scipy=1.11.1
-  
-  # Jupyter for development
   - jupyter=1.0.0
   - ipykernel=6.25.0
-  
-  # Pip packages (more reliable on Windows)
   - pip=23.2.1
   - pip:
     - opencv-python==4.8.0.76
